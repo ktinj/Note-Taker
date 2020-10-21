@@ -1,12 +1,14 @@
-const fs = require('fs');
+var fs = require("fs");
+var path = require("path");
 
-module.exports = fuction(app) {
+module.exports = function(app) {
 
-    app.get('/'), fuction(req, res) => {
-        res.sendFile(path.join(__dirname + '/../index.html', 
-    });
+    app.get("/notes"), (req, res) => {
+        res.sendFile(path.join(__dirname + "/public/notes.html"));
 
-    app.get('/../notes.html'), (req, res) => {
-        res.sendFile(path.join(__dirname + '/../notes.html', 
-    });
+    };
 
+    app.get("*", function(req, res) {
+        res.sendFile(path.join(__dirname + "/public/index.html"));
+      });
+}
