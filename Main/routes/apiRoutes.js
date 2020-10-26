@@ -1,43 +1,27 @@
-var fs = require("fs");
-var notesData = getNotes();
+const router = require("express").Router();
+const store = require("../db/store");
 
-function getNotes() {
-    let data = fs.readFileSync('./main/db/db.json', 'utf8');
-    let notes = JSON.parse(data);
+// get notes from database
+router.get("/notes", (req, res) => {
+  store
+    .getNotes()
+    .then((notes) => res.json(notes))
+    .catch((err) => res.status(500).json(err));
+});
 
-    for (let i = 0; i < notes.length; i++) {
-        notes[i].id = '' + i;
-    }
-    return notes;
-}
+router.post("/notes", (req, res) => {
+  store
+    .addNote(req.body)
+    .then((note) => res.json(note))
+    .catch((err) => res.status(500).json(err));
+});
 
-module.exports = function (app) {
+// delete notes
+router.delete("/notes/:id", (req, res) => {
+  store
+    .removeNote(req.params.id)
+    .then(() => res.json({ ok: true }))
+    .catch((err) => res.status(500).json(err));
+});
 
-    app.get("/api/notes", function (req, res) {
-        notesData = getNotes();
-        res.json(notesData);
-    });
-
-    app.post("/api/notes", function (req, res) {
-        notesData.push(req.body);
-        fs.writeFileSync('./main/db/db.json', JSON.stringify(notesData), 'utf8');
-        res.json(true);
-    });
-
-    app.delete("/api/notes/:id", function (req, res) {
-        const requestID = req.params.id;
-        console.log(requestID);
-
-        let note = notesData.filter(note => {
-            return note.id === requestID;
-        })[0];
-
-        console.log(note);
-        const index = notesData.indexOf(note);
-
-        notesData.splice(index, 1);
-
-        fs.writeFileSync('./main/db/db.json', JSON.stringify(notesData), 'utf8');
-        res.json("Note deleted");
-    });
-};
+module.exports = router;
